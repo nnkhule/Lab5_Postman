@@ -1,0 +1,49 @@
+{
+  "info": {
+    "name": "Lab05 - Public API (JSONPlaceholder)",
+    "description": "Даалгавар 5 — нийтийн API-д GET-only тест",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "publicUrl", "value": "https://jsonplaceholder.typicode.com" }
+  ],
+  "item": [
+    {
+      "name": "Даалгавар 5 - Нийтийн API",
+      "item": [
+        {
+          "name": "GET /users — хэрэглэгчдийн жагсаалт",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{publicUrl}}/users"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1: статус код",
+                  "pm.test(\"GET /users: статус 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Oracle 2: хариу нь массив",
+                  "pm.test(\"GET /users: хариу нь массив\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "// Oracle 3: эхний хэрэглэгчийн нэр",
+                  "pm.test(\"GET /users: эхний хэрэглэгчийн нэр Leanne Graham\", function () {",
+                  "    pm.expect(pm.response.json()[0].name).to.eql(\"Leanne Graham\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
