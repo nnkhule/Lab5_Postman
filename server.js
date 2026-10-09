@@ -1,192 +1,76 @@
+// Lab05 — Хичээлд бүртгүүлэх API (Лекц 5-ын жишээ систем)
 
-const http = require("http");
+const http = require('http');
 
-const students = {};
-const courses = {};
-const registrations = [];
+const students = {};      // id -> { status, coursesTaken }
+const courses = {};       // id -> { prerequisites }
+const registrations = []; // { registrationID, studentID, courseID }
 
-function send(res, status, data) {
-    res.writeHead(status, {
-        "Content-Type": "application/json; charset=utf-8"
-    });
-    res.end(JSON.stringify(data));
+function send(res, status, obj) {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(obj));
 }
 
-function readBody(req) {
-    return new Promise((resolve, reject) => {
-        let body = "";
+const server = http.createServer((req, res) => {
+  let body = '';
+  req.on('data', (c) => (body += c));
+  req.on('end', () => {
+    let data = {};
+    try { data = body ? JSON.parse(body) : {}; }
+    catch { return send(res, 400, { result: 'ERROR_BAD_JSON' }); }
 
-        req.on("data", chunk => {
-            body += chunk;
-        });
+    const url = req.url.split('?')[0];
 
-        req.on("end", () => {
-            try {
-                resolve(body ? JSON.parse(body) : {});
-            } catch {
-                reject(new Error("BAD_JSON"));
-            }
-        });
-
-        req.on("error", reject);
-    });
-}
-
-const server = http.createServer(async (req, res) => {
-    const url = new URL(req.url, "http://localhost:3000");
-    const parts = url.pathname.split("/").filter(Boolean);
-    const method = req.method;
-
-    try {
-        // PUT /students/:id
-        if (method === "PUT" &&
-            parts[0] === "students" &&
-            parts.length === 2) {
-
-            const id = parts[1];
-
-            if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-                return send(res, 400, {
-                    result: "ERROR_BAD_REQUEST"
-                });
-            }
-
-            const body = await readBody(req);
-
-            students[id] = {
-                status: body.status ?? "active",
-                coursesTaken: body.coursesTaken ?? []
-            };
-
-            return send(res, 200, { result: "OK" });
-        }
-
-        // PUT /courses/:id
-        if (method === "PUT" &&
-            parts[0] === "courses" &&
-            parts.length === 2) {
-
-            const id = parts[1];
-
-            if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
-                return send(res, 400, {
-                    result: "ERROR_BAD_REQUEST"
-                });
-            }
-
-            const body = await readBody(req);
-
-            courses[id] = {
-                courseID: id,
-                prerequisites: body.prerequisites ?? []
-            };
-
-            return send(res, 200, { result: "OK" });
-        }
-
-        // GET /courses/:id
-        if (method === "GET" &&
-            parts[0] === "courses" &&
-            parts.length === 2) {
-
-            const course = courses[parts[1]];
-
-            if (!course) {
-                return send(res, 404, {
-                    result: "ERROR_NO_COURSE"
-                });
-            }
-
-            return send(res, 200, course);
-        }
-
-        // POST /registrations
-        if (method === "POST" &&
-            url.pathname === "/registrations") {
-
-            let body;
-
-            try {
-                body = await readBody(req);
-            } catch {
-                return send(res, 400, {
-                    result: "ERROR_BAD_JSON"
-                });
-            }
-
-            const { studentID, courseID } = body;
-
-            if (!studentID || !courseID) {
-                return send(res, 400, {
-                    result: "ERROR_BAD_REQUEST"
-                });
-            }
-
-            const student = students[studentID];
-
-            if (!student) {
-                return send(res, 200, {
-                    result: "ERROR_NO_STUDENT"
-                });
-            }
-
-            if (student.status !== "active") {
-                return send(res, 200, {
-                    result: "ERROR_INACTIVE_STUDENT"
-                });
-            }
-
-            const course = courses[courseID];
-
-            if (!course) {
-                return send(res, 200, {
-                    result: "ERROR_NO_COURSE"
-                });
-            }
-
-            const missing = course.prerequisites.filter(
-                prerequisite =>
-                    !student.coursesTaken.includes(prerequisite)
-            );
-
-            if (missing.length > 0) {
-                return send(res, 200, {
-                    result: "ERROR_PREREQUISITES",
-                    missing
-                });
-            }
-
-            const registration = {
-                registrationID: registrations.length + 1,
-                studentID,
-                courseID
-            };
-
-            registrations.push(registration);
-
-            return send(res, 201, {
-                result: "OK",
-                registrationID: registration.registrationID
-            });
-        }
-
-        // GET /registrations
-        if (method === "GET" &&
-            url.pathname === "/registrations") {
-            return send(res, 200, registrations);
-        }
-
-        return send(res, 404, {
-            result: "ERROR_NOT_FOUND"
-        });
-
-    } catch {
-        return send(res, 400, {
-            result: "ERROR_BAD_REQUEST"
-        });
+    // Setup endpoints — тестийн Initialization-д ашиглана
+    let m;
+    if (req.method === 'PUT' && (m = url.match(/^\/students\/([\w-]+)$/))) {
+      students[m[1]] = {
+        status: data.status || 'active',
+        coursesTaken: data.coursesTaken || [],
+      };
+      return send(res, 200, { result: 'OK' });
     }
+    if (req.method === 'PUT' && (m = url.match(/^\/courses\/([\w-]+)$/))) {
+      courses[m[1]] = { prerequisites: data.prerequisites || [] };
+      return send(res, 200, { result: 'OK' });
+    }
+    if (req.method === 'GET' && (m = url.match(/^\/courses\/([\w-]+)$/))) {
+      const c = courses[m[1]];
+      if (!c) return send(res, 404, { result: 'ERROR_NO_COURSE' });
+      return send(res, 200, { courseID: m[1], ...c });
+    }
+
+    // Тестлэгдэх гол функц — хичээлд бүртгүүлэх
+    // 201 = амжилттай, 200 + ERROR_* = оролтын алдаа (Лекц 5-ын семантик)
+    if (req.method === 'POST' && url === '/registrations') {
+      const { studentID, courseID } = data;
+      if (!studentID || !courseID)
+        return send(res, 400, { result: 'ERROR_BAD_REQUEST' });
+
+      const student = students[studentID];
+      if (!student) return send(res, 200, { result: 'ERROR_NO_STUDENT' });
+      if (student.status !== 'active')
+        return send(res, 200, { result: 'ERROR_INACTIVE_STUDENT' });
+
+      const course = courses[courseID];
+      if (!course) return send(res, 200, { result: 'ERROR_NO_COURSE' });
+
+      const missing = course.prerequisites.filter(
+        (p) => !student.coursesTaken.includes(p)
+      );
+      if (missing.length > 0)
+        return send(res, 200, { result: 'ERROR_PREREQUISITES', missing });
+
+      const registrationID = registrations.length + 1;
+      registrations.push({ registrationID, studentID, courseID });
+      return send(res, 201, { result: 'OK', registrationID });
+    }
+
+    if (req.method === 'GET' && url === '/registrations')
+      return send(res, 200, registrations);
+
+    send(res, 404, { result: 'ERROR_NOT_FOUND' });
+  });
 });
 
-server.listen(3000, () => {
-    console.log("Бүртгэлийн API: http://localhost:3000");
-});
+server.listen(3000, () => console.log('Бүртгэлийн API: http://localhost:3000'));
