@@ -123,44 +123,32 @@ FAIL туршилтаар `lab05-collection-fail.json` файлын нэг oracl
 
 ### 6.3. DOWN туршилт
 
-DOWN туршилтаар API серверийг зогсоож, Newman Collection-ийг дахин ажиллуулсан.
+DOWN туршилтаар API серверийг зогсоож, Newman Collection-ийг ажиллуулсан. Сервер ажиллахгүй байсан тул хүсэлтүүдэд `ECONNREFUSED 127.0.0.1:3000` алдаа гарсан.
 
 | Үзүүлэлт | Үр дүн |
-|---|---|
+|---|---:|
 | API сервер | Зогсоосон |
-| Хүлээгдэх алдаа | `ECONNREFUSED` |
-| Хүлээгдэх төлөв | DOWN |
-| Newman exit code | Ажиллуулсны дараа |
+| Нийт хүсэлт | 27 |
+| Амжилтгүй хүсэлт | 27 |
+| Нийт assertion | 42 |
+| Амжилтгүй assertion | 42 |
+| Алдааны төрөл | `ECONNREFUSED` |
+| Төлөв | DOWN |
 
 ## 7. Үр дүнгийн файлууд
 
-Тестийн гаралтыг `results/` хавтсанд хадгалав.
+Тестийн гаралтыг `results/` хавтсанд хадгалсан.
 
 | Файл | Зориулалт |
 |---|---|
 | `results/newman-pass.txt` | Амжилттай тестийн гаралт |
 | `results/newman-fail.txt` | Fail тестийн гаралт |
+| `results/newman-down.txt` | Сервер унтарсан үеийн тестийн гаралт |
+| `results/newman-public.txt` | public API тестийн гаралт |
 
-### Newman ажиллуулах командууд
+## 8. GitHub репозиторийн бүтэц
 
-PASS:
-
-```powershell
-$output = newman run lab05-collection.json 2>&1
-$code = $LASTEXITCODE
-$output | Out-File results/newman-pass.txt -Encoding utf8
-"Exit code: $code"
-```
-
-FAIL:
-
-```powershell
-$output = newman run lab05-collection-fail.json 2>&1
-$code = $LASTEXITCODE
-$output | Out-File results/newman-fail.txt -Encoding utf8
-"Exit code: $code"
-```
-
+```text
 ## 8. GitHub репозиторийн бүтэц
 
 ```text
@@ -173,6 +161,11 @@ Lab5_Postman/
 └── results/
     ├── newman-pass.txt
     ├── newman-fail.txt
+    ├── newman-down.txt
+    └── newman-public.txt
 ```
 
+
 ## 9. Дүгнэлт
+
+Энэхүү лабораторийн ажлаар Postman ашиглан REST API-ийн хүсэлтүүдийг туршиж, Newman ашиглан тестүүдийг командын мөрөөс ажиллууллаа. Идэвхтэй болон идэвхгүй оюутан, байхгүй хичээл, урьдач нөхцөл хангагдаагүй зэрэг нөхцөлүүдэд зориулсан тестийн спецификацууд боловсруулсан. Мөн шаардлагатай талбар дутуу үед API хэрхэн хариу өгөхийг шалгасан. PASS туршилтаар нийт 42 assertion амжилттай ажиллаж, алдаа гараагүй. FAIL туршилтаар зориуд буруу oracle ашиглан тест алдаа илрүүлэх боломжийг шалгасан. DOWN туршилтаар сервер унтарсан үед `ECONNREFUSED` холболтын алдаа үүссэнийг баталгаажуулсан. Тестийн гаралтыг текст файлд хадгалснаар үр дүнг дахин шалгах боломжтой болсон. Ийнхүү API-ийн хэвийн ажиллагаа болон алдаатай нөхцөлүүдийг автоматжуулан шалгах дадлага эзэмшлээ.
