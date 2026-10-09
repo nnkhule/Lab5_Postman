@@ -1,0 +1,1082 @@
+{
+  "info": {
+    "name": "Lab05 - Course Registration API",
+    "description": "Лаборатори 5 — Хичээлд бүртгүүлэх API-ийн тест",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Даалгавар 1 - Анхны хүсэлт ба oracle",
+      "item": [
+        {
+          "name": "Setup: идэвхтэй, CS201 үзсэн оюутан",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\"CS201\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/students/B232270018"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Setup: оюутан үүссэн (200)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Setup: CS201 урьдач нөхцөлтэй CS314 хичээл",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prerequisites\": [\"CS201\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/courses/CS314"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Setup: хичээл үүссэн (200)\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /registrations - амжилттай бүртгэл",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentID\": \"B232270018\",\n  \"courseID\": \"CS314\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/registrations"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Oracle 1: статус код",
+                  "pm.test(\"Статус 201 байна\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Oracle 2: хариуны утга",
+                  "pm.test(\"result нь OK байна\", function () {",
+                  "    pm.expect(pm.response.json().result).to.eql(\"OK\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Даалгавар 3 - Спецификацийн тестүүд",
+      "item": [
+        {
+          "name": "01. Идэвхтэй, урьдач нөхцөл хангасан оюутан бүртгүүлэхэд 201 OK",
+          "item": [
+            {
+              "name": "Setup: оюутан B232270018 (active, үзсэн: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/students/B232270018"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: оюутан B232270018 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Setup: хичээл CS314 (урьдач: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/courses/CS314"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: хичээл CS314 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — Идэвхтэй, урьдач нөхцөл хангасан оюутан бүртгүүлэхэд 201 OK",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B232270018\",\n  \"courseID\": \"CS314\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Идэвхтэй, урьдач нөхцөл хангасан оюутан бүртгүүлэхэд 201 OK: статус 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test(\"Идэвхтэй, урьдач нөхцөл хангасан оюутан бүртгүүлэхэд 201 OK: result = OK\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"OK\");",
+                      "});",
+                      "",
+                      "pm.test(\"Идэвхтэй, урьдач нөхцөл хангасан оюутан бүртгүүлэхэд 201 OK: registrationID нь тоо\", function () {",
+                      "    pm.expect(pm.response.json().registrationID).to.be.a(\"number\");",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "02. Байхгүй оюутан бүртгүүлэхэд ERROR_NO_STUDENT",
+          "item": [
+            {
+              "name": "Setup: хичээл CS314 (урьдач: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/courses/CS314"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: хичээл CS314 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — Байхгүй оюутан бүртгүүлэхэд ERROR_NO_STUDENT",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B239999999\",\n  \"courseID\": \"CS314\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Байхгүй оюутан бүртгүүлэхэд ERROR_NO_STUDENT: статус 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Байхгүй оюутан бүртгүүлэхэд ERROR_NO_STUDENT: result = ERROR_NO_STUDENT\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"ERROR_NO_STUDENT\");",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "03. Идэвхгүй оюутан бүртгүүлэхэд ERROR_INACTIVE_STUDENT",
+          "item": [
+            {
+              "name": "Setup: оюутан B230000002 (inactive, үзсэн: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"inactive\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/students/B230000002"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: оюутан B230000002 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Setup: хичээл CS314 (урьдач: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/courses/CS314"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: хичээл CS314 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — Идэвхгүй оюутан бүртгүүлэхэд ERROR_INACTIVE_STUDENT",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B230000002\",\n  \"courseID\": \"CS314\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Идэвхгүй оюутан бүртгүүлэхэд ERROR_INACTIVE_STUDENT: статус 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Идэвхгүй оюутан бүртгүүлэхэд ERROR_INACTIVE_STUDENT: result = ERROR_INACTIVE_STUDENT\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"ERROR_INACTIVE_STUDENT\");",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "04. Байхгүй хичээлд бүртгүүлэхэд ERROR_NO_COURSE",
+          "item": [
+            {
+              "name": "Setup: оюутан B232270018 (active, үзсэн: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/students/B232270018"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: оюутан B232270018 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — Байхгүй хичээлд бүртгүүлэхэд ERROR_NO_COURSE",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B232270018\",\n  \"courseID\": \"CS999\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Байхгүй хичээлд бүртгүүлэхэд ERROR_NO_COURSE: статус 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Байхгүй хичээлд бүртгүүлэхэд ERROR_NO_COURSE: result = ERROR_NO_COURSE\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"ERROR_NO_COURSE\");",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "05. Урьдач нөхцөлийг огт үзээгүй оюутан бүртгүүлэхэд ERROR_PREREQUISITES",
+          "item": [
+            {
+              "name": "Setup: оюутан B230000003 (active, үзсэн: [])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": []\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/students/B230000003"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: оюутан B230000003 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Setup: хичээл CS314 (урьдач: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"prerequisites\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/courses/CS314"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: хичээл CS314 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — Урьдач нөхцөлийг огт үзээгүй оюутан бүртгүүлэхэд ERROR_PREREQUISITES",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B230000003\",\n  \"courseID\": \"CS314\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Урьдач нөхцөлийг огт үзээгүй оюутан бүртгүүлэхэд ERROR_PREREQUISITES: статус 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Урьдач нөхцөлийг огт үзээгүй оюутан бүртгүүлэхэд ERROR_PREREQUISITES: result = ERROR_PREREQUISITES\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"ERROR_PREREQUISITES\");",
+                      "});",
+                      "",
+                      "pm.test(\"Урьдач нөхцөлийг огт үзээгүй оюутан бүртгүүлэхэд ERROR_PREREQUISITES: missing = [CS201]\", function () {",
+                      "    pm.expect(pm.response.json().missing).to.eql([\"CS201\"]);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "06. Байхгүй оюутан + байхгүй хичээл бол ERROR_NO_STUDENT",
+          "item": [
+            {
+              "name": "POST /registrations — Байхгүй оюутан + байхгүй хичээл бол ERROR_NO_STUDENT",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B239999999\",\n  \"courseID\": \"CS999\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Байхгүй оюутан + байхгүй хичээл бол ERROR_NO_STUDENT: статус 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Байхгүй оюутан + байхгүй хичээл бол ERROR_NO_STUDENT: result = ERROR_NO_STUDENT\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"ERROR_NO_STUDENT\");",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "07. Идэвхгүй оюутан + байхгүй хичээл бол ERROR_INACTIVE_STUDENT",
+          "item": [
+            {
+              "name": "Setup: оюутан B230000002 (inactive, үзсэн: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"inactive\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/students/B230000002"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: оюутан B230000002 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — Идэвхгүй оюутан + байхгүй хичээл бол ERROR_INACTIVE_STUDENT",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B230000002\",\n  \"courseID\": \"CS999\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Идэвхгүй оюутан + байхгүй хичээл бол ERROR_INACTIVE_STUDENT: статус 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Идэвхгүй оюутан + байхгүй хичээл бол ERROR_INACTIVE_STUDENT: result = ERROR_INACTIVE_STUDENT\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"ERROR_INACTIVE_STUDENT\");",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "08. Урьдач нөхцөлийн заримыг үзсэн бол ERROR_PREREQUISITES (missing CS202)",
+          "item": [
+            {
+              "name": "Setup: оюутан B232270018 (active, үзсэн: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/students/B232270018"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: оюутан B232270018 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Setup: хичээл CS402 (урьдач: [CS201, CS202])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"prerequisites\": [\n    \"CS201\",\n    \"CS202\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/courses/CS402"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: хичээл CS402 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — Урьдач нөхцөлийн заримыг үзсэн бол ERROR_PREREQUISITES (missing CS202)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B232270018\",\n  \"courseID\": \"CS402\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Урьдач нөхцөлийн заримыг үзсэн бол ERROR_PREREQUISITES (missing CS202): статус 200\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "pm.test(\"Урьдач нөхцөлийн заримыг үзсэн бол ERROR_PREREQUISITES (missing CS202): result = ERROR_PREREQUISITES\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"ERROR_PREREQUISITES\");",
+                      "});",
+                      "",
+                      "pm.test(\"Урьдач нөхцөлийн заримыг үзсэн бол ERROR_PREREQUISITES (missing CS202): missing = [CS202]\", function () {",
+                      "    pm.expect(pm.response.json().missing).to.eql([\"CS202\"]);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "09. Хоосон coursesTaken-тэй оюутан урьдач нөхцөлгүй хичээлд бүртгүүлэхэд 201 OK",
+          "item": [
+            {
+              "name": "Setup: оюутан B230000003 (active, үзсэн: [])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": []\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/students/B230000003"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: оюутан B230000003 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Setup: хичээл CS101 (урьдач: [])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"prerequisites\": []\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/courses/CS101"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: хичээл CS101 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — Хоосон coursesTaken-тэй оюутан урьдач нөхцөлгүй хичээлд бүртгүүлэхэд 201 OK",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B230000003\",\n  \"courseID\": \"CS101\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Хоосон coursesTaken-тэй оюутан урьдач нөхцөлгүй хичээлд бүртгүүлэхэд 201 OK: статус 201\", function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "",
+                      "pm.test(\"Хоосон coursesTaken-тэй оюутан урьдач нөхцөлгүй хичээлд бүртгүүлэхэд 201 OK: result = OK\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"OK\");",
+                      "});",
+                      "",
+                      "pm.test(\"Хоосон coursesTaken-тэй оюутан урьдач нөхцөлгүй хичээлд бүртгүүлэхэд 201 OK: registrationID нь тоо\", function () {",
+                      "    pm.expect(pm.response.json().registrationID).to.be.a(\"number\");",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "10. courseID талбар дутуу бол 400 ERROR_BAD_REQUEST",
+          "item": [
+            {
+              "name": "Setup: оюутан B232270018 (active, үзсэн: [CS201])",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"active\",\n  \"coursesTaken\": [\n    \"CS201\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/students/B232270018"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Setup: оюутан B232270018 үүссэн (200)\", function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "POST /registrations — courseID талбар дутуу бол 400 ERROR_BAD_REQUEST",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"studentID\": \"B232270018\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": "{{baseUrl}}/registrations"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"courseID талбар дутуу бол 400 ERROR_BAD_REQUEST: статус 400\", function () {",
+                      "    pm.response.to.have.status(400);",
+                      "});",
+                      "",
+                      "pm.test(\"courseID талбар дутуу бол 400 ERROR_BAD_REQUEST: result = ERROR_BAD_REQUEST\", function () {",
+                      "    pm.expect(pm.response.json().result).to.eql(\"ERROR_BAD_REQUEST\");",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
